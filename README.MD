@@ -6,6 +6,11 @@ This is a ansible playbook for ArangoDB cluster Installation on Ubuntu Machines.
 
 ArangoDB is an open source native multi-model database. It supports graph, document, and key-value data models allowing users to freely combine all data models in a single query. The querry language used for ArrangoDB is is called AQL. (ArangoDB Query Language). The query language is declarative and allows the combination of different data access patterns in a single query.
 
+For More details : https://www.arangodb.com/
+
+
+![Blank diagram](https://user-images.githubusercontent.com/50264439/134165284-8cb53007-20c0-4c97-9693-d73e14436e32.jpeg)
+
 Pre-requisites: 3 ubuntu machines
 Ansible 2.5.1
 
