@@ -22,9 +22,10 @@ max_count: "<max count value>"
 ===================================================
 
 how to run :
-
+```
 Extract the tar file arangoDB_cluster.tar.gz
 cd arangoDB_cluster.tar
 ansible-playbook deploy_dbcluster.yml
+```
 
 ===================================================
