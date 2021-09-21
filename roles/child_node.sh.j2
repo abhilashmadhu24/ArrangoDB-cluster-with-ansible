@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo arangodb start --starter.data-dir=/home/ubuntu/arangodb/data/ --server.storage-engine=rocksdb --auth.jwt-secret=/home/ubuntu/arangodb/arangodb.secret --all.log.level=startup=debug --starter.join {{ main_node }}

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo 'deb https://download.arangodb.com/arangodb34/DEBIAN/ /' | sudo tee /etc/apt/sources.list.d/arangodb.list
+
+wget -q https://download.arangodb.com/arangodb34/DEBIAN/Release.key -O- | sudo apt-key add - 
+
+sudo apt-get update -y 

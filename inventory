@@ -1,0 +1,19 @@
+
+[arangodb_node1]  # recommendation: 3 or 5-7 nodes
+54.172.75.105 hostname=arango-node-1
+
+[arangodb_node2_3]
+18.212.24.161 hostname=arango-node-2
+54.173.186.41 hostname=arango-node-3
+
+
+# Connection settings
+[all:vars]
+ansible_connection='ssh'
+ansible_ssh_port='<ssh port>'
+ansible_user='<ssh user>'
+ansible_ssh_private_key_file=<ssh private key location>
+ 
+
+
+

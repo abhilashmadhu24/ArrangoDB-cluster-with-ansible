@@ -1,0 +1,147 @@
+---
+- name: install python on ubuntu 18.04 instances
+  hosts: arangodb_node1:arangodb_node2_3
+  gather_facts: false
+  become_method: sudo
+  tasks:
+    - name: run apt-get update and install python
+      raw: "{{ item }}"
+      loop:
+        - apt-get update
+        - apt-get -y install python
+        - apt-get -y install apt-transport-https
+      become: true
+
+- name: Making server changes
+  hosts: arangodb_node1:arangodb_node2_3
+  vars_files:
+    - vars/default.yml
+  tasks:
+    - name: Sending shell script
+      template:
+        src: "roles/make2.sh.j2"
+        dest: "/home/ubuntu/make.sh"
+        mode: '0777'
+    - name: Changing vm.max_map_count on nodes
+      command: sh /home/ubuntu/make.sh
+
+- name: Changing HostNames
+  hosts: arangodb_node1:arangodb_node2_3
+  become: true
+  become_method: sudo
+  any_errors_fatal: true
+  pre_tasks:
+    - import_tasks: hostname.yml
+      when: hostname is defined and hostname | length > 0
+      tags: hostname
+
+- name: Installing Arangodb Packages
+  hosts: arangodb_node1:arangodb_node2_3
+  tasks:
+    - name: Sending shell script
+      template:
+        src: "roles/make1.sh.j2"
+        dest: "/home/ubuntu/make.sh"
+        mode: '0777'
+    - name: Adding key and repository
+      command: sh /home/ubuntu/make.sh
+    - name: Install Arango
+      become: true
+      become_method: sudo
+      apt: name=arangodb3 update_cache=yes state=present
+
+- name: Creating JWT token for cluster authentication
+  hosts: arangodb_node1
+  tasks: 
+    - name: Creating JWT token 
+      command: arangodb create jwt-secret --secret=/home/ubuntu/arangodb.secret
+    - name: Fetching secret key
+      fetch:
+        src: /home/ubuntu/arangodb.secret
+        dest: secret/
+        flat: true
+
+- name: Copying secret key to all nodes
+  hosts: arangodb_node1:arangodb_node2_3
+  tasks:
+    - name: Create Data directories
+      file:
+        path: "/home/ubuntu/arangodb/data/"
+        state: directory
+        mode: '0755'
+    - name: Copying secret token
+      template:
+        src: "secret/arangodb.secret"
+        dest: "/home/ubuntu/arangodb/arangodb.secret"
+        mode: '0400'
+
+- name: Stopping stand-alone service on all nodes
+  hosts: arangodb_node1:arangodb_node2_3
+  become: true
+  become_method: sudo
+  tasks:
+    - name: stop and disable service
+      service:
+        name: arangodb3
+        state: stopped
+        enabled: false
+
+- hosts: arangodb_node1
+  become: true
+  vars_files:
+    - vars/default.yml
+  tasks:
+    - name: Master node configuration
+      template:
+        src: "roles/main_node.sh.j2"
+        dest: "/home/ubuntu/make.sh"
+        mode: '0777'
+    - name: Starting Master Node
+      command: sh /home/ubuntu/make.sh
+
+- hosts: arangodb_node2_3
+  become: true
+  vars_files:
+    - vars/default.yml
+  tasks:      
+    - name: Child node configurations
+      template:
+        src: "roles/child_node.sh.j2"
+        dest: "/home/ubuntu/make.sh"
+        mode: '0777'
+    - name: Starting child_nodes
+      command: sh /home/ubuntu/make.sh
+    - name: Waiting for cluster set-up completion
+      pause:
+        minutes: 2
+
+- hosts: arangodb_node1
+  become: true
+  vars_files:
+    - vars/default.yml
+  tasks:
+    - name: Cluster Root Password
+      template:
+        src: "roles/root_passwd.sh.j2"
+        dest: "/home/ubuntu/make.sh"
+        mode: '0777'
+    - name: Reseting root password
+      command: sh /home/ubuntu/make.sh
+
+- hosts: arangodb_node1:arangodb_node2_3
+  tasks:
+    - name: checking nodes
+      wait_for:
+        port: 8529
+        state: started
+        delay: 0
+        timeout: 10
+      ignore_errors: yes
+      register: wait_result
+
+    - debug:
+        msg: "{{ wait_result }}"
+
+
+
+

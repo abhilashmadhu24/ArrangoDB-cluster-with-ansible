@@ -1,0 +1,7 @@
+---
+main_node: "172.20.2.151"
+db_root_passwd: "1234"
+max_count: "8000"
+disable_default: true
+
+#make sure your max_count value
