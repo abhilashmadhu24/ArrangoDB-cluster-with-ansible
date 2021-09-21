@@ -8,8 +8,8 @@ ArangoDB is an open source native multi-model database. It supports graph, docum
 
 For More details : https://www.arangodb.com/
 
+![Blank diagram (1)](https://user-images.githubusercontent.com/50264439/134165532-197dcb43-93d0-4273-a762-517fea1310fe.jpeg)
 
-![Blank diagram](https://user-images.githubusercontent.com/50264439/134165284-8cb53007-20c0-4c97-9693-d73e14436e32.jpeg)
 
 Pre-requisites: 3 ubuntu machines
 Ansible 2.5.1
